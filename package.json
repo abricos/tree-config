@@ -1,0 +1,45 @@
+{
+  "name": "tree-config",
+  "description": "Tree-config organizes hierarchical configurations for your app deployments",
+  "version": "0.1.0",
+  "main": "./lib/Config",
+  "homepage": "https://github.com/abricos/tree-config",
+  "author": {
+    "name": "Alexander Kuzmin",
+    "email": "roosit@abricos.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/abricos/tree-config.git"
+  },
+  "bugs": {
+    "url": "https://github.com/abricos/tree-config/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/abricos/tree-config/blob/master/LICENSE"
+    }
+  ],
+  "engines": {
+    "node": ">= 0.10.34"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "config",
+    "conf",
+    "configuration",
+    "tree-config",
+    "config-tree",
+    "env",
+    "environment"
+  ],
+  "dependencies": {
+    "winston": "^0.8.3",
+    "merge": "^1.2.0",
+    "path": "^0.11.14",
+    "dateformat": "^1.0.11",
+    "chalk": "^0.5.1",
+    "fs-extra": "^0.14.0"
+  }
+}
