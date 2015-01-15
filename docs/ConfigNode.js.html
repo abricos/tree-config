@@ -1,3 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: lib/ConfigNode.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: lib/ConfigNode.js</h1>
+
+    
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * @author Alexander Kuzmin &lt;roosit@abricos.org>
+ * @requires helper
+ * @requires Default
+ * @module ConfigNode
+ */
+
 'use strict';
 
 var merge = require('merge');
@@ -8,103 +42,80 @@ var winston = require('winston');
 var dateFormat = require('dateformat');
 var chalk = require('chalk');
 
-var logHelper = require('./loghelper');
+var helper = require('./utils/helper');
+var Default = require('./Default');
+var KeyManager = require('./KeyManager');
 
 var UTF8 = 'utf-8';
 
-var _dotFields = {},
-    _dotRegExp = /\./g,
-    _DOTR = '__DOT__';
+/**
+ * @class
+ * @param id
+ * @param parent {ConfigNode}
+ * @param options {Object}
+ * @constructor
+ */
+var ConfigNode = function(id, parent, options){
 
-var _findDotFields = function(options){
-    if (typeof options !== 'object'){
-        return options;
-    }
-    for (var n in options){
-        if (_dotRegExp.test(n)){
-            _dotFields[n] = n.replace(_dotRegExp, _DOTR);
-        }
-        _findDotFields(options[n]);
-    }
-};
-
-if (!module.exports._cacheConfigSplitKey){
-    module.exports._cacheConfigSplitKey = {};
-}
-var _cacheSplitKey = module.exports._cacheConfigSplitKey;
-var _splitKey = function(key){
-    if (typeof key !== 'string'){
-        throw new Error('Key in config must be String type');
-    }
-
-    if (_cacheSplitKey[key]){
-        return _cacheSplitKey[key];
-    }
-
-    key = key.replace(/^\s+|\s+$/g, '');
-
-    var keyOrig = key;
-    var tKey;
-    for (var n in _dotFields){
-        do {
-            tKey = key.replace(n, _dotFields[n]);
-            if (tKey !== key){
-                key = tKey;
-            } else {
-                break;
-            }
-        } while (true);
-    }
-    var a = key.split('.'), ret = [], ai;
-    for (var i = 0; i < a.length; i++){
-        ai = a[i];
-        for (var n in _dotFields){
-            if (ai === _dotFields[n]){
-                ai = n;
-                break;
-            }
-        }
-        ret[ret.length] = ai;
-    }
-    _cacheSplitKey[keyOrig] = ret;
-    return ret;
-};
-
-var Config = function(id, parent, options){
+    /**
+     * Id by which an config is identified
+     * @type {*|string}
+     */
     this.id = id || "_root_";
-    this.parent = parent;
+
+    /**
+     *
+     * @type {Object}
+     * @private
+     */
     this._options = {};
+
+    /**
+     *
+     * @type {ConfigNode}
+     */
+    this.parent = parent;
+
+    /**
+     *
+     * @type {KeyManager}
+     */
+    this.keyManager = new KeyManager();
 
     this.init(options);
 };
 
-Config.MY_CONFIG_FILE = "myconfig.json";
+ConfigNode.prototype = {
 
-Config.ROOT_DEFAULT_OPTIONS = {
-    directory: process.cwd(),
-    log: {
-        console: {
-            level: 'info',
-            colorize: 'true',
-            timestamp: 'HH:MM:ss'
-        }
-    }
-};
-
-Config.prototype = {
-
+    /**
+     *
+     * @param key
+     * @param config
+     * @returns {ConfigNode}
+     */
     instance: function(key, config){
         return module.exports.instance(key, config);
     },
 
+    /**
+     * Merge two or more objects recursively
+     *
+     * @param obj1 {Object}
+     * @param obj2 {Object}
+     * @returns {Object}
+     */
     merge: function(obj1, obj2){
         return merge.recursive(true, obj1, obj2);
     },
 
+    /**
+     *
+     * @param [options] {Object}
+     */
     init: function(options){
         options = options || {};
 
-        _findDotFields(options);
+        this.keyManager.extractDotFields(options);
 
         var root = this;
         while (root.parent){
@@ -112,23 +123,23 @@ Config.prototype = {
         }
         this.root = root === this ? null : root;
 
-        var defOptions = !this.parent ? Config.ROOT_DEFAULT_OPTIONS : {};
+        var defOptions = !this.parent ? Default.ROOT_OPTIONS : {};
 
         var directory = options.directory;
         if (!directory){
             directory = this.parent ?
                 this.parent.get('directory') :
-                Config.ROOT_DEFAULT_OPTIONS.directory;
+                Default.ROOT_OPTIONS.directory;
         }
 
         var disableImport = this.get('disableImportFilesForChild', {
             default: false
         });
-        if (directory && !disableImport){
-            var imports = Config.IMPORTS || [],
+        if (directory &amp;&amp; !disableImport){
+            var imports = Default.IMPORTS || [],
                 importItem,
                 importFile, json, a, tObj;
-            for (var i = 0; i < imports.length; i++){
+            for (var i = 0; i &lt; imports.length; i++){
                 importItem = imports[i];
                 importFile = path.join(directory, importItem.file);
                 if (!fs.existsSync(importFile)){
@@ -140,11 +151,11 @@ Config.prototype = {
                     var msg = 'Access denied or JSON syntax error in `' + importFile + '`';
                     throw new Error(msg);
                 }
-                _findDotFields(json);
+                this.keyManager.extractDotFields(json);
 
-                a = _splitKey(importItem.key);
+                a = this.keyManager.split(importItem.key);
                 tObj = defOptions;
-                for (var ii = 0; ii < a.length; ii++){
+                for (var ii = 0; ii &lt; a.length; ii++){
                     tObj[a[ii]] = tObj[a[ii]] || {};
 
                     if (ii === (a.length - 1)){
@@ -159,10 +170,10 @@ Config.prototype = {
         var configFileJSON = {};
 
         if (!disableImport
-            && typeof Config.MY_CONFIG_FILE === 'string'
-            && Config.MY_CONFIG_FILE.length > 0){
+            &amp;&amp; typeof ConfigNode.MY_CONFIG_FILE === 'string'
+            &amp;&amp; ConfigNode.MY_CONFIG_FILE.length > 0){
 
-            var configFile = path.join(directory, Config.MY_CONFIG_FILE);
+            var configFile = path.join(directory, ConfigNode.MY_CONFIG_FILE);
 
             if (fs.existsSync(configFile)){
                 try {
@@ -171,7 +182,7 @@ Config.prototype = {
                     var msg = 'Access denied or JSON syntax error in `' + configFile + '`';
                     throw new Error(msg);
                 }
-                _findDotFields(configFileJSON);
+                this.keyManager.extractDotFields(configFileJSON);
             }
         }
 
@@ -193,7 +204,7 @@ Config.prototype = {
             return ret;
         }
 
-        var regexp = /\<\%=(.*?)\%\>/,
+        var regexp = /\&lt;\%=(.*?)\%\>/,
             a,
             val;
         do {
@@ -212,7 +223,7 @@ Config.prototype = {
         options = options || {};
         options.onlyThis = options.onlyThis || false;
 
-        var aKey = _splitKey(key),
+        var aKey = this.keyManager.split(key),
             ret,
             iKey;
 
@@ -234,7 +245,7 @@ Config.prototype = {
             return this.parent.get(aKey.join('.'), options)
         }
 
-        for (var i = 0; i < aKey.length; i++){
+        for (var i = 0; i &lt; aKey.length; i++){
             iKey = aKey[i];
             if (i === 0){
                 ret = this._options;
@@ -247,7 +258,7 @@ Config.prototype = {
                     return this.parent.get(key, options);
                 }
                 if (typeof options.default === 'undefined'){
-                    this.logger().warn('value not set in config, key %s, id %s', logHelper.string(key), logHelper.string(this.id));
+                    this.logger().warn('value not set in config, key %s, id %s', helper.string(key), helper.string(this.id));
                 }
                 return options.default;
             } else {
@@ -258,15 +269,15 @@ Config.prototype = {
         return ret;
     },
     set: function(key, value){
-        var aKey = _splitKey(key),
+        var aKey = this.keyManager.split(key),
             options = this._options,
             iKey;
 
-        if (aKey.length > 0 && aKey[0] === 'log'){
+        if (aKey.length > 0 &amp;&amp; aKey[0] === 'log'){
             this._logger = null;
         }
 
-        for (var i = 0; i < aKey.length; i++){
+        for (var i = 0; i &lt; aKey.length; i++){
             iKey = aKey[i];
             if (i === (aKey.length - 1)){
                 options[iKey] = value;
@@ -326,72 +337,26 @@ Config.prototype = {
     }
 };
 
-var ConfigManager = function(){
-};
-ConfigManager.prototype = {
-    instance: function(key, options){
-        if (typeof key === 'object' && !options){
-            options = key;
-            key = options.id || Config.genid();
-            if (typeof options.parentId === 'string'){
-                key = [options.parentId, key].join('.');
-            }
-        }
-        if (!this._rootConfig){
-            this._rootConfig = {
-                instance: new Config(),
-                childs: {}
-            }
-        }
-        var rootConfig = this._rootConfig;
+module.exports = ConfigNode;</code></pre>
+        </article>
+    </section>
 
-        if (!key){
-            return rootConfig.instance;
-        }
 
-        var aKey = key.split('.'), iKey,
-            current = rootConfig, parent;
 
-        for (var i = 0; i < aKey.length; i++){
-            iKey = aKey[i];
-            parent = current;
-            current = parent.childs[iKey];
 
-            if (!current){
-                if (i < (aKey.length - 1)){
-                    throw new Error('Defective structure configs: ' + key);
-                } else {
-                    parent.childs[iKey] = current = {
-                        instance: new Config(key, parent.instance, options),
-                        childs: {}
-                    };
-                }
-            }
-        }
-        return current.instance;
-    }
-};
+</div>
 
-var me = module.exports;
+<nav>
+    <h2><a href="index.html">Index</a></h2><h3>Modules</h3><ul><li><a href="module-Config.html">Config</a></li><li><a href="module-ConfigNode.html">ConfigNode</a></li><li><a href="module-Container.html">Container</a></li><li><a href="module-Default.html">Default</a></li><li><a href="module-helper.html">helper</a></li><li><a href="module-KeyManager.html">KeyManager</a></li><li><a href="module-utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="module-ConfigNode-ConfigNode.html">ConfigNode</a></li><li><a href="module-Container-Container.html">Container</a></li><li><a href="module-KeyManager-KeyManager.html">KeyManager</a></li></ul>
+</nav>
 
-me.logHelper = logHelper;
+<br clear="both">
 
-me.instance = function(key, config){
-    if (!this._manager){
-        this._manager = new this.ConfigManager();
-    }
-    return this._manager.instance(key, config);
-};
-me.clear = function(){
-    this._manager = new this.ConfigManager();
-};
-me.genid = function(prefix){
-    if (!this._uniqueCounter){
-        this._uniqueCounter = 0;
-    }
-    prefix = prefix || '';
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Thu Jan 15 2015 23:08:03 GMT+0300 (MSK)
+</footer>
 
-    return prefix + (this._uniqueCounter++);
-};
-me.Config = Config;
-me.ConfigManager = ConfigManager;
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

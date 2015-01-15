@@ -3,6 +3,9 @@
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var cover = require('gulp-coverage');
+var jsdoc = require('gulp-jsdoc');
+var del = require('del');
+var vinylPaths = require('vinyl-paths');
 
 var opts = {
     mocha: {
@@ -31,7 +34,7 @@ function coverage(tests, output){
     return gulp
         .src(tests, {read: false})
         .pipe(cover.instrument({
-            pattern: ['lib/**.js'],
+            pattern: ['index.js', 'lib/**.js'],
             debugDirectory: 'debug'
         }))
         .pipe(mocha(opts.mocha))
@@ -40,8 +43,20 @@ function coverage(tests, output){
         }));
 }
 
-gulp.task('coverage', function () {
+gulp.task('coverage', function(){
     return coverage(['test/*.js'], 'test/coverage.html');
 });
+
+gulp.task('clean-docs', function(){
+    return gulp.src(['docs/'])
+        .pipe(vinylPaths(del));
+});
+
+gulp.task('make-docs', function(){
+    return gulp.src(['index.js', 'lib/**/*.js', 'README.md'])
+        .pipe(jsdoc('./docs'));
+});
+
+gulp.task('docs', ['clean-docs', 'make-docs']);
 
 gulp.task('default', ['test', 'watch']);
