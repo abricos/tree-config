@@ -1,2 +1,5 @@
+.coverdata
+.coverrun
+debug/
 node_modules
 npm-debug.log
