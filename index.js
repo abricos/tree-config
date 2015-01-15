@@ -16,7 +16,7 @@ module.exports = {
     /**
      * @private
      */
-    _container: null,
+    _container: new Container(),
 
     /**
      *
@@ -25,9 +25,6 @@ module.exports = {
      * @returns {ConfigNode}
      */
     instance: function(key, options){
-        if (!this._container){
-            this._container = new Container();
-        }
         return this._container.instance(key, options);
     },
 

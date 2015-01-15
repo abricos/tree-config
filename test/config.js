@@ -21,7 +21,7 @@ describe('Tree-config', function(){
         done();
     });
 
-    it('root config instance', function(done){
+    it('should be root config instance', function(done){
         var config = treeConfig.instance();
 
         should.exist(config);
@@ -32,9 +32,31 @@ describe('Tree-config', function(){
         done();
     });
 
-    it('check root default options', function(done){
-        // var directory = config.get('directory');
-        // should.exist(config);
+    it('should be child config', function(done){
+
+        var childOptions = {
+            myChildOption: 'This myChildOption value'
+        };
+
+        var childConfig = treeConfig.instance('child', childOptions);
+
+        var value = childConfig.get('myChildOption');
+        should.exist(value);
+
+        value.should.equal(childOptions.myChildOption);
+
+        done();
+    });
+
+    it('should be static function treeConfig in root config instance', function(done){
+/*
+        var config = treeConfig.instance();
+
+        config = config.instance();
+
+        should.exist(config);
+        config.should.be.an.instanceOf(treeConfig.ConfigNode);
+/**/
         done();
     });
 
