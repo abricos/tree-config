@@ -12,7 +12,7 @@ and can be overridden and extended.
 
 Installation is fairly straightforward, just install the npm module:
 
-    $ npm install -g smtpeshka
+    $ npm install -g tree-config
 
 ## Quick Start
 
@@ -187,4 +187,6 @@ In your code:
 
 In your code:
 
+    ...
     var database = config.get('^.db.mysql.database');
+    ...
