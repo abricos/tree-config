@@ -6,6 +6,7 @@ var treeConfig = require('../index');
 
 var APP_CONFIG = {
     CONFIG_FILE: '.appconfig.json',
+    OVERRIDE_CONFIG_FILE: 'myappconfig.json',
     ROOT_OPTIONS: {
         directory: path.join(__dirname, 'test-app'),
         tester: {
@@ -21,6 +22,9 @@ var APP_CONFIG = {
     }]
 };
 
+var MODULE_OPTIONS = {
+    directory: path.join(__dirname, 'test-app', 'module')
+};
 
 describe('App Configure: ', function(){
 
@@ -67,5 +71,41 @@ describe('App Configure: ', function(){
         done();
     });
 
+    it('should be created module config', function(done){
+        var config = treeConfig.instance('module', MODULE_OPTIONS);
+
+        should.exist(config);
+        should.exist(config.parent);
+
+        config.parent.should.property('id', '_root_');
+        config.should.property('id', 'module');
+
+        var name = config.get('package.name');
+        should.equal(name, 'test-app-module');
+
+        done();
+    });
+
+    it('should be get a parent config value', function(done){
+        var config = treeConfig.instance('module');
+
+        should.exist(config);
+
+        var value = config.get('^.users.admin.password');
+        should.equal(value, 'admin');
+
+        done();
+    });
+
+    it('should be get a override config value from myappconfig.json', function(done){
+        var config = treeConfig.instance('module');
+
+        should.exist(config);
+
+        var value = config.get('users.admin.password');
+        should.equal(value, 'myadminpass');
+
+        done();
+    });
 
 });

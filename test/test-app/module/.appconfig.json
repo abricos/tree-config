@@ -1,0 +1,8 @@
+{
+  "users": {
+    "guest": {
+      "login": "guest",
+      "password": "guest"
+    }
+  }
+}
