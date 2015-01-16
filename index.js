@@ -10,6 +10,7 @@
 var ConfigNode = require('./lib/ConfigNode');
 var Container = require('./lib/Container');
 var Default = require('./lib/Default');
+var utils = require('./lib/utils');
 
 module.exports = {
 
@@ -31,7 +32,7 @@ module.exports = {
     /**
      * @returns {Container}
      */
-    clear: function(){
+    clean: function(){
         this._container = new Container();
     },
 
@@ -44,6 +45,11 @@ module.exports = {
      * Default options
      * @type {Default}
      */
-    Default: Default
+    Default: Default,
+
+    /**
+     * @type {utils}
+     */
+    utils: utils
 };
 

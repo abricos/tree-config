@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var cover = require('gulp-coverage');
 var jsdoc = require('gulp-jsdoc');
+var subtree = require('gulp-subtree');
 var del = require('del');
 var vinylPaths = require('vinyl-paths');
 
@@ -57,6 +58,16 @@ gulp.task('make-docs', function(){
         .pipe(jsdoc('./docs'));
 });
 
-gulp.task('docs', ['clean-docs', 'make-docs']);
+gulp.task('publish-docs', function(){
+    return gulp
+        .src('docs')
+        .pipe(subtree({
+            // remote: 'origin',
+            // branch: 'master',
+            message: 'Updating docs'
+        }));
+});
+
+gulp.task('docs', ['clean-docs', 'make-docs', 'publish-docs']);
 
 gulp.task('default', ['test', 'watch']);

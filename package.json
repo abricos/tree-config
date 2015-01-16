@@ -39,6 +39,7 @@
     "gulp-coverage": "^0.3.32",
     "gulp-jsdoc": "^0.1.4",
     "gulp-mocha": "^2.0.0",
+    "gulp-subtree": "^0.1.0",
     "should": "^4.6.0",
     "vinyl-paths": "^1.0.0"
   },
