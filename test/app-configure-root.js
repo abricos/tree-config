@@ -1,23 +1,31 @@
 'use strict';
 
 var should = require('should');
+var path = require('path');
 var treeConfig = require('../index');
 
-var ROOT_OPTIONS = {
-    tester: {
-        protocol: 'https',
-        host: 'localhost',
-        port: 8080,
-        address: '<%= tester.protocol%>://<%= tester.host%>:<%= tester.port%>'
-    }
+var APP_CONFIG = {
+    CONFIG_FILE: '.appconfig.json',
+    ROOT_OPTIONS: {
+        directory: path.join(__dirname, 'test-app'),
+        tester: {
+            protocol: 'https',
+            host: 'localhost',
+            port: 8080,
+            address: '<%= tester.protocol%>://<%= tester.host%>:<%= tester.port%>'
+        }
+    },
+    IMPORTS: [{
+        key: 'package',
+        file: 'package.json'
+    }]
 };
 
-describe('Root default options', function(){
+
+describe('App Configure: ', function(){
 
     before(function(done){
-        treeConfig.configure({
-            ROOT_OPTIONS: ROOT_OPTIONS
-        });
+        treeConfig.configure(APP_CONFIG);
         done();
     });
 
@@ -26,7 +34,7 @@ describe('Root default options', function(){
         done();
     });
 
-    it('should be root config instance', function(done){
+    it('should be reconfigured root config', function(done){
         var rootConfig = treeConfig.instance();
 
         should.exist(rootConfig);
@@ -34,6 +42,27 @@ describe('Root default options', function(){
 
         var address = rootConfig.get('tester.address');
         should.equal(address, 'https://localhost:8080');
+
+        done();
+    });
+
+    it('should be imported .appconfig.json', function(done){
+        var rootConfig = treeConfig.instance();
+        should.exist(rootConfig);
+
+        var adminLogin = rootConfig.get('users.admin.login');
+        should.equal(adminLogin, 'admin');
+
+        done();
+    });
+
+    it('should be imported package.json', function(done){
+        var rootConfig = treeConfig.instance();
+
+        should.exist(rootConfig);
+
+        var name = rootConfig.get('package.name');
+        should.equal(name, 'test-app');
 
         done();
     });
