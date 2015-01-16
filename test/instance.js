@@ -4,15 +4,19 @@ var should = require('should');
 
 var treeConfig;
 
-describe('Tree-config', function(){
+describe('TreeConfig: ', function(){
 
-    it('should tree-config class', function(done){
+    it('should be property ConfigNode class', function(done){
         treeConfig = require('../index');
         should.exist(treeConfig);
 
         treeConfig.should.property('ConfigNode');
-        treeConfig.should.property('Default');
 
+        done();
+    });
+
+    it('should be property utils class', function(done){
+        treeConfig.should.property('utils');
         done();
     });
 
@@ -21,7 +25,7 @@ describe('Tree-config', function(){
         done();
     });
 
-    it('should be root config instance', function(done){
+    it('should be root config instance typeof ConfigNode', function(done){
         var config = treeConfig.instance();
 
         should.exist(config);
