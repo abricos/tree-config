@@ -100,8 +100,6 @@ describe('App Configure: ', function(){
     it('should be get a override config value from myappconfig.json', function(done){
         var config = treeConfig.instance('module');
 
-        should.exist(config);
-
         var value = config.get('users.admin.password');
         should.equal(value, 'myadminpass');
 
