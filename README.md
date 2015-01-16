@@ -12,7 +12,7 @@ and can be overridden and extended.
 
 Installation is fairly straightforward, just install the npm module:
 
-    $ npm install -g tree-config
+    $ npm install tree-config
 
 ## Quick Start
 
