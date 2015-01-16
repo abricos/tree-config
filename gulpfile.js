@@ -58,16 +58,18 @@ gulp.task('make-docs', function(){
         .pipe(jsdoc('./docs'));
 });
 
+/*
 gulp.task('publish-docs', function(){
     return gulp
         .src('docs')
         .pipe(subtree({
-            // remote: 'origin',
-            // branch: 'master',
+            remote: 'origin',
+            branch: 'master',
             message: 'Updating docs'
         }));
 });
+/**/
 
-gulp.task('docs', ['clean-docs', 'make-docs', 'publish-docs']);
+gulp.task('docs', ['clean-docs', 'make-docs']);
 
 gulp.task('default', ['test', 'watch']);
