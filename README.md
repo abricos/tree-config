@@ -1,5 +1,7 @@
 # tree-config
 
+[![NPM](https://nodei.co/npm/tree-config.svg?downloads=true&downloadRank=true)](https://nodei.co/npm/tree-config/)&nbsp;&nbsp;
+
 Tree-config organizes hierarchical configurations for your app deployments.
 
 It lets you define a set of default parameters, and extend them
