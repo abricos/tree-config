@@ -2,8 +2,12 @@
   "name": "tree-config",
   "description": "Tree-config organizes hierarchical configurations for your app deployments",
   "version": "0.2.1",
-  "main": "./index",
   "homepage": "https://github.com/abricos/tree-config",
+  "main": "./index",
+  "scripts": {
+    "start": "./node_modules/.bin/gulp",
+    "test": "./node_modules/.bin/gulp test"
+  },
   "author": {
     "name": "Alexander Kuzmin",
     "email": "roosit@abricos.org"
