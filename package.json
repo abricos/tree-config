@@ -2,7 +2,7 @@
   "name": "tree-config",
   "description": "Tree-config organizes hierarchical configurations for your app deployments",
   "version": "0.2.1",
-  "main": "./lib/Config",
+  "main": "./index",
   "homepage": "https://github.com/abricos/tree-config",
   "author": {
     "name": "Alexander Kuzmin",
