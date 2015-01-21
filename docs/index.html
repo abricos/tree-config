@@ -42,8 +42,156 @@
 
     <section>
         <article><h1 id="tree-config">tree-config</h1>
+<p><a href="https://nodei.co/npm/tree-config/"><img src="https://nodei.co/npm/tree-config.svg?downloads=true&amp;downloadRank=true" alt="NPM"></a>&nbsp;&nbsp;
+<a href="https://travis-ci.org/abricos/tree-config"><img src="https://travis-ci.org/abricos/tree-config.svg?branch=master" alt="Build Status"></a>&nbsp;&nbsp;</p>
 <p>Tree-config organizes hierarchical configurations for your app deployments.</p>
-</article>
+<p>It lets you define a set of default parameters, and extend them
+for different deployment environments (development, qa, staging, production, etc.).</p>
+<p>Configurations are stored in configuration files within your application,
+and can be overridden and extended.</p>
+<h2 id="installation">Installation</h2>
+<p>Installation is fairly straightforward, just install the npm module:</p>
+<pre><code>$ npm install tree-config
+</code></pre><h2 id="quick-start">Quick Start</h2>
+<p>Create a configuration file for your application, JSON format.</p>
+<h4 id="example">Example</h4>
+<p><em>config.json</em></p>
+<pre><code>{
+    &quot;db&quot;: {
+        &quot;mysql&quot;: {
+            &quot;server&quot;: &quot;localhost&quot;,
+            &quot;port&quot;: 3306,
+            &quot;database&quot;: &quot;myapp&quot;,
+            &quot;user&quot;: &quot;root&quot;,
+            &quot;password&quot;: &quot;&quot;
+        }
+    }
+}
+</code></pre><p>Use the config in your code:</p>
+<pre><code>var treeConfig = require(&#39;tree-config&#39;);
+treeConfig.configure(({
+    // the main configuration file
+    CONFIG_FILE: &#39;config.json&#39;
+});
+
+var config = treeConfig.instance();
+
+// Get config value `db.mysql.server`
+// `server` variable will have value `localhost`
+var server = config.get(&#39;db.mysql.server&#39;);
+</code></pre><h3 id="override-values">Override values</h3>
+<p>To override the defaults, create a configuration file with
+with the desired values.</p>
+<h4 id="example">Example</h4>
+<p><em>myconfig.json</em></p>
+<pre><code>{
+    &quot;db&quot;: {
+        &quot;mysql&quot;: {
+            &quot;database&quot;: &quot;mydbapp&quot;,
+            &quot;user&quot;: &quot;dbuser&quot;,
+            &quot;password&quot;: &quot;dbpass&quot;
+        }
+    }
+}
+</code></pre><p>In your code:</p>
+<pre><code>var treeConfig = require(&#39;tree-config&#39;);
+treeConfig.configure({
+    // the main configuration file
+    CONFIG_FILE: &#39;config.json&#39;,
+
+    // configuration file to override the main settings
+    OVERRIDE_CONFIG_FILE: &#39;myconfig.json&#39;
+});
+
+var config = treeConfig.instance();
+
+// Get config value `db.mysql.database`
+// `database` variable will have value `mydbapp`
+var database = config.get(&#39;db.mysql.database&#39;);
+</code></pre><h3 id="default-config-values-in-app">Default config values in app</h3>
+<p>You can set default values in the application.</p>
+<h4 id="example">Example</h4>
+<p>In your code:</p>
+<pre><code>var treeConfig = require(&#39;tree-config&#39;);
+treeConfig.configure({
+    ...
+    ROOT_OPTIONS: {
+        db: {
+            mysql: {
+                server: &#39;localhost&#39;,
+                port: 3306,
+                ...
+            }
+        }
+    },
+    ...
+});
+</code></pre><h3 id="import-additional-config-files">Import additional config files</h3>
+<p>In your code:</p>
+<pre><code>var treeConfig = require(&#39;tree-config&#39;);
+treeConfig.configure({
+    ...
+    IMPORTS: [{
+        key: &#39;package&#39;,
+        file: &#39;package.json&#39;
+    }]
+    ...
+});
+
+var config = treeConfig.instance();
+
+var appName = config.get(&#39;package.name&#39;);
+</code></pre><h3 id="tree-configuration">Tree configuration</h3>
+<p>Create a configuration file for your application module.</p>
+<h4 id="example">Example</h4>
+<p>Application structure:</p>
+<pre><code>/
+ config.json
+ package.json
+ ...
+ modules/
+    user/
+        config.json
+        package.json
+        ...
+</code></pre><p>In your code:</p>
+<pre><code>var treeConfig = require(&#39;tree-config&#39;);
+treeConfig.configure({
+    // the main configuration file
+    CONFIG_FILE: &#39;config.json&#39;,
+
+    ROOT_OPTIONS: {
+        db: {
+            mysql: {
+                server: &#39;localhost&#39;,
+                port: 3306,
+                ...
+            }
+        }
+    },
+
+    IMPORTS: [{
+        key: &#39;package&#39;,
+        file: &#39;package.json&#39;
+    }]
+});
+
+var config = treeConfig.instance(&#39;user-module&#39;, {
+    directory: path.join(process.cwd(), &#39;modules&#39;, &#39;user&#39;),
+    db: {
+        mysql: {
+            database: &#39;userdb&#39;
+        }
+    }
+});
+
+var database = config.get(&#39;db.mysql.database&#39;);
+</code></pre><h3 id="getting-value-of-the-parent-configuration">Getting value of the parent configuration</h3>
+<p>In your code:</p>
+<pre><code>...
+var database = config.get(&#39;^.db.mysql.database&#39;);
+...
+</code></pre></article>
     </section>
 
 
@@ -60,7 +208,7 @@
 <br clear="both">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Fri Jan 16 2015 18:33:03 GMT+0300 (MSK)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha5</a> on Wed Jan 21 2015 14:13:19 GMT+0300 (MSK)
 </footer>
 
 <script> prettyPrint(); </script>
