@@ -1,35 +1,34 @@
 'use strict';
 
 var should = require('should');
+var config;
 
-var treeConfig;
-
-describe('TreeConfig: ', function(){
+describe('TreeConfig instance', function(){
 
     it('should be property ConfigNode class', function(done){
-        treeConfig = require('../index');
-        should.exist(treeConfig);
+        config = require('../index');
+        should.exist(config);
 
-        treeConfig.should.property('ConfigNode');
+        config.should.property('ConfigNode');
 
         done();
     });
 
     it('should be property utils class', function(done){
-        treeConfig.should.property('utils');
+        config.should.property('utils');
         done();
     });
 
     it('clean all instance', function(done){
-        treeConfig.clean();
+        config.clean();
         done();
     });
 
     it('should be root config instance typeof ConfigNode', function(done){
-        var config = treeConfig.instance();
+        var config = config.instance();
 
         should.exist(config);
-        config.should.be.an.instanceOf(treeConfig.ConfigNode);
+        config.should.be.an.instanceOf(config.ConfigNode);
 
         should.not.exist(config.parent);
 
@@ -42,7 +41,7 @@ describe('TreeConfig: ', function(){
             myChildOption: 'This myChildOption value'
         };
 
-        var childConfig = treeConfig.instance('child', childOptions);
+        var childConfig = config.instance('child', childOptions);
 
         var value = childConfig.get('myChildOption');
         should.exist(value);
@@ -52,24 +51,24 @@ describe('TreeConfig: ', function(){
         done();
     });
 
-    it('should be static function treeConfig in root config instance', function(done){
-        var config = treeConfig.instance();
+    it('should be static function config in root config instance', function(done){
+        var config = config.instance();
 
         config = config.instance();
 
         should.exist(config);
-        config.should.be.an.instanceOf(treeConfig.ConfigNode);
+        config.should.be.an.instanceOf(config.ConfigNode);
 
         done();
     });
 
-    it('should be static function treeConfig in children config instance', function(done){
-        var config = treeConfig.instance();
+    it('should be static function config in children config instance', function(done){
+        var config = config.instance();
 
         config = config.instance('child');
 
         should.exist(config);
-        config.should.be.an.instanceOf(treeConfig.ConfigNode);
+        config.should.be.an.instanceOf(config.ConfigNode);
 
         config.should.property('id', 'child');
 

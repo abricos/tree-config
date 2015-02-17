@@ -1,92 +1,140 @@
 /**
  * @author Alexander Kuzmin <roosit@abricos.org>
- * @module Config
- * @requires ConfigNode
- * @requires Container
+ * @module TreeConfig
  */
 
 'use strict';
 
-var merge = require('merge');
-
 var ConfigNode = require('./lib/ConfigNode');
-var Container = require('./lib/Container');
+var SourceManager = require('./lib/SourceManager');
+
+var TreeConfig = module.exports = new ConfigNode('_root_', null);
+
+
+
+return; // TODO: ********************* remove ****************
+
+var merge = require('merge');
+var util = require('util');
+
 var utils = require('./lib/utils');
+var keyManager = require('./lib/keyManager');
+
+
+/**
+ * @private
+ */
+TreeConfig._rootNode = null;
+
+TreeConfig._rootNodeSettings = null;
 
 /**
  *
- * @type {{CONFIG_FILE: string, OVERRIDE_CONFIG_FILE: string, IMPORTS: Array}}
- * @private
+ * @param appConfig {Object}
+ * @returns {ConfigNode}
  */
-var _APP_CONFIG = {
-
-    /**
-     * @type {string}
-     */
-    CONFIG_FILE: '',
-
-    /**
-     * @type {string}
-     */
-    OVERRIDE_CONFIG_FILE: '',
-
-    /**
-     * @type {Array}
-     */
-    IMPORTS: [],
-
-    /**
-     * @type {Object}
-     */
-    ROOT_OPTIONS: {}
+TreeConfig.configure = function(settings){
+    this._rootNodeSettings = settings;
+    return this.clean();
 };
 
-module.exports = {
+/**
+ * @returns {ConfigNode}
+ */
+TreeConfig.clean = function(){
+    this._rootNode = new ConfigNode('_root_', null, {}, this._rootNodeSettings);
 
-    /**
-     * @private
-     */
-    _appConfig: _APP_CONFIG,
+    return this._rootNode;
+};
 
-    /**
-     * @private
-     */
-    _container: null,
+/**
+ *
+ * @param {String} [key]
+ * @param {Object|[]} [options]
+ */
+TreeConfig.createNode = function(key, options, appConfig){
+    if (key && (typeof key !== 'string') && !options){
+        options = key;
+        key = null;
+    }
 
-    /**
-     *
-     * @param appConfig {Object}
-     */
-    configure: function(appConfig){
-        this._appConfig = merge.recursive(true, _APP_CONFIG, appConfig)
+    if (util.isArray(options)){
+        var newOptions = {};
+        for (var i = 0; i < options.length; i++){
+            newOptions = merge.recursive(true, newOptions, options[i] || {});
+        }
+        options = newOptions;
+    }
+
+    if (!key && options){
+        key = options.id || utils.genid();
+        if (typeof options.parentId === 'string'){
+            key = [options.parentId, key].join('.');
+        }
+    }
+
+    if (!this._rootNode){
         this.clean();
-    },
+    }
 
-    /**
-     *
-     * @param [key] {String}
-     * @param [options] {Object}
-     * @returns {ConfigNode}
-     */
-    instance: function(key, options){
-        return this._container.instance(key, options);
-    },
+    var childConfig = this._rootNode.getChildConfig(key);
+    if (childConfig){
+        throw new Error('Config Node is created (' + key + ')');
+    }
 
-    /**
-     * @returns {Container}
-     */
-    clean: function(){
-        this._container = new Container(this._appConfig);
-    },
+    var parentNode = this._rootNode;
 
-    /**
-     * @type {ConfigNode}
-     */
-    ConfigNode: ConfigNode,
+    var pKey = keyManager.parent(key);
+    if (pKey){
+        parentNode = this._rootNode.getChildConfig(pKey);
+    }
 
-    /**
-     * @type {utils}
-     */
-    utils: utils
+    var id = keyManager.last(key);
+
+    childConfig = new ConfigNode(id, parentNode, options, appConfig || this._appConfig);
+
+    parentNode.addChildConfig(childConfig);
+
+    return childConfig;
 };
 
+/**
+ *
+ * @param key
+ * @returns {*}
+ */
+TreeConfig.getNode = function(key){
+    if (!key){
+        return this._rootNode;
+    }
+    return this._rootNode.getChildConfig(key);
+};
+
+/**
+ *
+ * @param key
+ * @param options
+ * @returns {*}
+ */
+TreeConfig.get = function(key, options){
+    options = options || {};
+    var configNode = this._rootNode;
+    if (options.id){
+        configNode = this.getNode(options.id);
+        if (!configNode){
+            throw new Error('Config node `' + options.id + '` not found');
+        }
+    }
+    return configNode.get(key, options);
+};
+
+
+/**
+ * @type {ConfigNode}
+ */
+TreeConfig.ConfigNode = ConfigNode;
+
+/**
+ * @type {utils}
+ */
+TreeConfig.utils = utils;

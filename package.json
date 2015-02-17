@@ -1,7 +1,7 @@
 {
   "name": "tree-config",
   "description": "Tree-config organizes hierarchical configurations for your app deployments",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "homepage": "https://github.com/abricos/tree-config",
   "main": "./index",
   "scripts": {

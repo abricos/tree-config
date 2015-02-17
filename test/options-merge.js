@@ -2,17 +2,17 @@
 
 var should = require('should');
 
-var treeConfig = require('../index');
+var config = require('../index');
 
 describe('TreeConfig Merge options: ', function(){
 
     before(function(done){
-        treeConfig.clean();
+        config.clean();
         done();
     });
 
     after(function(done){
-        treeConfig.clean();
+        config.clean();
         done();
     });
 
@@ -31,7 +31,7 @@ describe('TreeConfig Merge options: ', function(){
             }
         };
 
-        var config = treeConfig.instance([defOptions, options]);
+        var config = config.instance([defOptions, options]);
         should.exist(config);
 
         var value = config.get('user.pass');

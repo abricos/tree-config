@@ -1,39 +1,65 @@
 'use strict';
 
 var should = require('should');
-
-var treeConfig = require('../index');
+var config = require('../index');
 
 describe('TreeConfig Node', function(){
 
     before(function(done){
-        treeConfig.configure({
-            ROOT_OPTIONS: {
-                directory: process.cwd(),
-                log: {
-                    console: {
-                        level: 'info',
-                        colorize: 'true',
-                        timestamp: 'HH:MM:ss',
-                        label: 'api'
-                    }
-                },
-                api: {
-                    module: {
-                        pathTemplate: '<%= directory %>/lib/{v#module}'
-                    }
+        config.clean();
+
+        var defaultSettings = {
+            directory: process.cwd(),
+            log: {
+                console: {
+                    level: 'info',
+                    colorize: 'true',
+                    timestamp: 'HH:MM:ss',
+                    label: 'api'
                 }
+            },
+            api: {
+                module: {
+                    pathTemplate: '<%= directory %>/lib/{v#module}'
+                }
+            },
+            server: {
+                port: 90
             }
-        });
+        };
+
+        config.setDefaults(defaultSettings);
+
         done();
     });
 
     after(function(done){
-        treeConfig.clean();
+        config.clean();
         done();
     });
 
-    it('should be child config node', function(done){
+    it('should init with options', function(done){
+        var port = config.get('server.port');
+        should.equal(port, 90);
+
+        config.init({server: {port: 80}});
+
+        port = config.get('server.port');
+        should.equal(port, 80);
+
+        done();
+    });
+
+    it('should set options', function(done){
+        config.set('server.port', 8080);
+
+        var port = config.get('server.port');
+        should.equal(port, 8080);
+
+        done();
+    });
+
+    it('should create child config node', function(done){
 
         var defOptions = {
             id: 'module-user',
@@ -45,26 +71,31 @@ describe('TreeConfig Node', function(){
         };
 
         var overOptions = {
-            parentId: '_root_'
+            api: {
+                uri: 'http://localhost'
+            }
         };
 
-        var config = treeConfig.instance([defOptions, overOptions]);
-        should.exist(config);
+        var childConfigNode = config.createNode([defOptions, overOptions]);
+        should.exist(childConfigNode);
 
         done();
     });
 
     it('should be correct values', function(done){
-        var rootConfig = treeConfig.instance();
-        should.exist(rootConfig);
 
-        var label = rootConfig.get('log.console.label');
+        var label = config.get('log.console.label');
         should.equal(label, 'api');
 
-        var config = treeConfig.instance('module-user');
-        should.exist(config);
+        label = config.get('log.console.label', {
+            id: 'module-user'
+        });
+        should.equal(label, 'api.user');
 
-        label = config.get('log.console.label');
+        var userConfig = config.getNode('module-user');
+        should.exist(userConfig);
+
+        label = userConfig.get('log.console.label');
         should.equal(label, 'api.user');
 
         done();
