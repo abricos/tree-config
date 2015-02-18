@@ -3,7 +3,7 @@
 var should = require('should');
 var config = require('../index');
 
-describe.only('TreeConfig Source functions', function(){
+describe('TreeConfig Source functions', function(){
 
     before(function(done){
         config.clean();

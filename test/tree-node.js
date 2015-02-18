@@ -3,12 +3,12 @@
 var should = require('should');
 var config = require('../index');
 
-describe('TreeConfig Node', function(){
+describe.only('TreeConfig Node', function(){
 
     before(function(done){
         config.clean();
 
-        var defaultSettings = {
+        config.setDefaults({
             directory: process.cwd(),
             log: {
                 console: {
@@ -26,9 +26,7 @@ describe('TreeConfig Node', function(){
             server: {
                 port: 90
             }
-        };
-
-        config.setDefaults(defaultSettings);
+        });
 
         done();
     });
@@ -61,38 +59,37 @@ describe('TreeConfig Node', function(){
 
     it('should create child config node', function(done){
 
-        var defOptions = {
-            id: 'module-user',
+        var childConfig = config.children.create('module-user');
+
+        childConfig.setDefaults({
             log: {
                 console: {
                     label: '<%= ^.log.console.label %>.user'
                 }
             }
-        };
+        });
 
-        var overOptions = {
+        childConfig.init({
             api: {
                 uri: 'http://localhost'
             }
-        };
+        });
 
-        var childConfigNode = config.createNode([defOptions, overOptions]);
-        should.exist(childConfigNode);
+        should.exist(childConfig);
 
         done();
     });
 
-    it('should be correct values', function(done){
-
+    it('should correct values', function(done){
         var label = config.get('log.console.label');
         should.equal(label, 'api');
 
         label = config.get('log.console.label', {
-            id: 'module-user'
+            from: 'module-user'
         });
         should.equal(label, 'api.user');
 
-        var userConfig = config.getNode('module-user');
+        var userConfig = config.children.get('module-user');
         should.exist(userConfig);
 
         label = userConfig.get('log.console.label');
