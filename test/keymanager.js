@@ -3,7 +3,7 @@
 var should = require('should');
 var config = require('../index');
 
-describe.only('KeyManager functions', function(){
+describe('KeyManager functions', function(){
 
     before(function(done){
         config.clean();
