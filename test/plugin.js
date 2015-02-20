@@ -5,6 +5,8 @@ var util = require("util");
 
 var config = require('../index');
 
+var savedLoggerPlugin = config.PluginManager.get('logger');
+
 var LoggerPlugin = function(config){
     config.PluginManager.Plugin.call(this, config);
 };
@@ -40,6 +42,8 @@ describe('Plugin', function(){
 
     after(function(done){
         config.clean();
+        config.PluginManager.register('logger', savedLoggerPlugin);
+
         done();
     });
 

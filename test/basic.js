@@ -145,4 +145,14 @@ describe('Basic functions', function(){
         done();
     });
 
+    it('should find value on tree', function(done){
+        var subChildConfig = config.getNode('module.submodule');
+        should.exist(subChildConfig);
+
+        var value = subChildConfig.get('log.console.colorize');
+        should.equal(value, 'true');
+
+        done();
+    });
+
 });

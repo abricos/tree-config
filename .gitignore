@@ -3,3 +3,4 @@
 debug/
 node_modules
 npm-debug.log
+test/coverage.html
