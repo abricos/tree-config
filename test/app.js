@@ -4,15 +4,7 @@ var should = require('should');
 var path = require('path');
 var config = require('../index');
 
-var APP_CONFIG = {
-    OVERRIDE_CONFIG_FILE: 'myappconfig.json',
-    IMPORTS: [{
-        key: 'package',
-        file: 'package.json'
-    }]
-};
-
-describe('TreeConfig App', function(){
+describe('App', function(){
 
     before(function(done){
         config.clean();

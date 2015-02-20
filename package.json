@@ -48,10 +48,7 @@
     "vinyl-paths": "^1.0.0"
   },
   "dependencies": {
-    "winston": "^0.8.3",
     "merge": "^1.2.0",
-    "dateformat": "^1.0.11",
-    "chalk": "^0.5.1",
     "fs-extra": "^0.14.0"
   }
 }
