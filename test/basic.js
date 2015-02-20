@@ -134,17 +134,15 @@ describe('Basic functions', function(){
         done();
     });
 
-    /*
+
     it('should get value from root node in subchild node', function(done){
         var subChildConfig = config.getNode('module.submodule');
         should.exist(subChildConfig);
 
         var value = subChildConfig.get('^^.server.port');
-        should.equal(value, 1000);
+        should.equal(value, 8080);
 
         done();
     });
-    /**/
-    it('should get value from root node in subchild node');
 
 });
