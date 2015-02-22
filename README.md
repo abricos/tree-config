@@ -40,13 +40,15 @@ Create a configuration file for your application, JSON format.
 
 Use the config in your code:
 
-    var treeConfig = require('tree-config');
-    treeConfig.configure(({
-        // the main configuration file
-        CONFIG_FILE: 'config.json'
+    var config = require('tree-config');
+    config.configure({
+        sources: [
+            {
+                type: 'json',
+                src: 'config.json'
+            }
+        ]
     });
-
-    var config = treeConfig.instance();
 
     // Get config value `db.mysql.server`
     // `server` variable will have value `localhost`
@@ -74,16 +76,18 @@ with the desired values.
 
 In your code:
 
-    var treeConfig = require('tree-config');
-    treeConfig.configure({
-        // the main configuration file
-        CONFIG_FILE: 'config.json',
-
-        // configuration file to override the main settings
-        OVERRIDE_CONFIG_FILE: 'myconfig.json'
+    var config = require('tree-config');
+    config.configure({
+        sources: [
+            {
+                type: 'json',
+                src: 'config.json'
+            },{
+                type: 'json',
+                src: 'myconfig.json'
+            }
+        ]
     });
-
-    var config = treeConfig.instance();
 
     // Get config value `db.mysql.database`
     // `database` variable will have value `mydbapp`
@@ -98,19 +102,14 @@ You can set default values in the application.
 
 In your code:
 
-    var treeConfig = require('tree-config');
-    treeConfig.configure({
-        ...
-        ROOT_OPTIONS: {
-            db: {
-                mysql: {
-                    server: 'localhost',
-                    port: 3306,
-                    ...
-                }
+    config.setDefaults({
+        db: {
+            mysql: {
+                server: 'localhost',
+                port: 3306,
+                ...
             }
-        },
-        ...
+        }
     });
 
 
@@ -118,19 +117,18 @@ In your code:
 
 In your code:
 
-    var treeConfig = require('tree-config');
-    treeConfig.configure({
-        ...
-        IMPORTS: [{
-            key: 'package',
-            file: 'package.json'
-        }]
-        ...
+    config.configure({
+        sources: [
+            {
+                cwd: process.cwd(),
+                key: 'mypackage',
+                type: 'json',
+                src: 'package.json'
+            }
+        ]
     });
 
-    var config = treeConfig.instance();
-
-    var appName = config.get('package.name');
+    var appName = config.get('mypackage.name');
 
 
 ### Tree configuration
@@ -154,29 +152,46 @@ Application structure:
 
 In your code:
 
-    var treeConfig = require('tree-config');
-    treeConfig.configure({
-        // the main configuration file
-        CONFIG_FILE: 'config.json',
-
-        ROOT_OPTIONS: {
-            db: {
-                mysql: {
-                    server: 'localhost',
-                    port: 3306,
-                    ...
-                }
+    var config = require('tree-config');
+    config.configure({
+        sources: [
+            {
+                type: 'json',
+                src: 'config.json'
+            },{
+                type: 'json',
+                key: 'package',
+                src: 'myconfig.json'
             }
-        },
-
-        IMPORTS: [{
-            key: 'package',
-            file: 'package.json'
-        }]
+        ]
+    });
+    config.setDefaults({
+       db: {
+           mysql: {
+               server: 'localhost',
+               port: 3306,
+               ...
+           }
+       }
     });
 
-    var config = treeConfig.instance('user-module', {
-        directory: path.join(process.cwd(), 'modules', 'user'),
+    var cwdChildConfig =  path.join(process.cwd(), 'modules', 'user');
+    var childConfig = config.children.create('user-module);
+    childConfig.configure({
+        sources: [
+            {
+                type: 'json',
+                cwd: cwdChildConfig,
+                src: 'config.json'
+            },{
+                type: 'json',
+                key: 'package',
+                cwd: cwdChildConfig,
+                src: 'myconfig.json'
+            }
+        ]
+    });
+    childConfig.setDefaults({
         db: {
             mysql: {
                 database: 'userdb'
@@ -184,7 +199,8 @@ In your code:
         }
     });
 
-    var database = config.get('db.mysql.database');
+    // `database` variable will have value `userdb`
+    var database = childConfig.get('db.mysql.database');
 
 
 ### Getting value of the parent configuration
@@ -192,5 +208,10 @@ In your code:
 In your code:
 
     ...
-    var database = config.get('^.db.mysql.database');
+    var database = childConfig.get('^.db.mysql.database');
     ...
+
+
+### More examples
+
+See more examples in the [test](https://github.com/abricos/tree-config/tree/master/test) folder
