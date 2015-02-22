@@ -132,4 +132,51 @@ describe('App', function(){
         done();
     });
 
+    it('should created two child config `module2`', function(done){
+        var childConfig = config.children.create('module2');
+        should.exist(childConfig);
+        should.exist(childConfig.parent);
+
+        var modCWD = path.join(__dirname, 'test-app', 'module');
+
+        childConfig.configure({
+            defaults: {
+                users: {
+                    user: {
+                        password: 'myuserpass'
+                    }
+                }
+            },
+            sources: [
+                {
+                    type: 'json',
+                    cwd: path.join(__dirname, 'test-app'),
+                    src: '.appconfig.json'
+                }, {
+                    type: 'json',
+                    cwd: modCWD,
+                    src: 'mymodconfig.json'
+                }
+            ],
+            sourcesOrder: {
+                '.appconfig.json': 1,
+                'mymodconfig.json': 2
+            }
+        });
+
+        childConfig.should.property('id', 'module2');
+
+        done();
+    });
+
+    it('should get a override config value from .modconfig.json', function(done){
+        var childConfig = config.children.get('module2');
+
+        var value = childConfig.get('users.admin.password');
+        should.equal(value, 'myadminpass');
+
+        done();
+    });
+
+
 });

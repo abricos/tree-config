@@ -45,7 +45,7 @@ describe('Source functions', function(){
 
     it('should configure order', function(done){
         config.configure({
-            orderSources: {
+            sourcesOrder: {
                 setter: 0,
                 defaults: 1,
                 init: 2
