@@ -3,7 +3,7 @@
 var gulp = require('gulp');
 var mocha = require('gulp-mocha');
 var cover = require('gulp-coverage');
-var jsdoc = require('gulp-jsdoc');
+var jsdoc = require('gulp-jsdoc3');
 var subtree = require('gulp-subtree');
 var del = require('del');
 var vinylPaths = require('vinyl-paths');
@@ -53,8 +53,8 @@ gulp.task('clean-docs', function(){
         .pipe(vinylPaths(del));
 });
 
-gulp.task('make-docs', function(){
-    return gulp.src(['index.js', 'lib/**/*.js', 'README.md'])
+gulp.task('make-docs', function(cb){
+    return gulp.src(['index.js', 'lib/**/*.js', 'README.md'], {read: false})
         .pipe(jsdoc('./docs'));
 });
 
