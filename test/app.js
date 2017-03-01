@@ -177,6 +177,4 @@ describe('App', function(){
 
         done();
     });
-
-
 });

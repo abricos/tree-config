@@ -1,7 +1,7 @@
 {
   "name": "tree-config",
   "description": "Tree-config organizes hierarchical configurations for your app deployments",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "homepage": "https://github.com/abricos/tree-config",
   "main": "./index",
   "scripts": {
@@ -20,9 +20,6 @@
     "url": "https://github.com/abricos/tree-config/issues"
   },
   "license": "MIT",
-  "engines": {
-    "node": ">= 0.10.24"
-  },
   "keywords": [
     "config",
     "conf",
@@ -33,7 +30,7 @@
     "environment"
   ],
   "devDependencies": {
-    "del": "^1.2.1",
+    "del": "^2.2.2",
     "gulp": "^3.9.1",
     "gulp-coverage": "^0.3.38",
     "gulp-jsdoc3": "^1.0.1",
